@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: customer-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-ms
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: customer-ms
+    spec:
+      containers:
+      - env:
+        - name: SPRING_PROFILES_ACTIVE
+          valueFrom:
+            configMapKeyRef:
+              key: SPRING_PROFILES_ACTIVE
+              name: app-config
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:mysql://customer-ms-db-service:3306/mysqldb
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              key: SPRING_DATASOURCE_USERNAME
+              name: app-config
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: SPRING_DATASOURCE_PASSWORD
+              name: app-config
+        image: cgibdemo.azurecr.io/customerservice:latest
+        imagePullPolicy: Always
+        name: customerservice

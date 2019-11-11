@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: customer-ms-db
+  name: customer-ms-db
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-ms-db
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: customer-ms-db
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: DB_NAME
+              name: mysql-config
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              key: DB_USER
+              name: mysql-config
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: DB_PASSWORD
+              name: mysql-config
+        image: mysql:8.0.18
+        imagePullPolicy: IfNotPresent
+        name: mysql
