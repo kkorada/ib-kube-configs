@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: trnx-service
+spec:
+  selector:
+    app: transaction-ms
+  ports:
+  - protocol: TCP
+    port: 8083
+    targetPort: 8083

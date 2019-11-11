@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: transaction-ms-db-service
+spec:
+  selector:
+    app: transaction-ms-db
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
