@@ -1,0 +1,52 @@
+az aks get-credentials --resource-group internet-banking-demo --name ib-demo
+
+az aks browse --name ib-demo --resource-group internet-banking-demo
+
+# set this to the name of your Azure Container Registry.  It must be globally unique
+MYACR=ibDemoRegistry
+
+# Run the following line to create an Azure Container Registry if you do not already have one
+az acr create -n $MYACR -g ib-resource-group --sku basic
+
+# Create an AKS cluster with ACR integration
+az aks create -n ib-cluster -g ib-resource-group --generate-ssh-keys --attach-acr $MYACR
+
+git clone https://github.com/kkorada/ib-frontend.git
+git clone https://github.com/kkorada/ib-customers-service.git
+git clone https://github.com/kkorada/ib-accounts-service.git
+git clone https://github.com/kkorada/ib-transactions-service.git
+git clone https://github.com/kkorada/ib-kube-configs.git
+
+
+cd ./ib-frontend/
+git pull
+mvn -Pprod clean verify -DskipTests=true
+rm -f ./src/main/docker/app.jar
+cp target/*.jar ./src/main/docker/app.jar
+cd ./src/main/docker/
+az acr build --image ibfrontend --registry cgibdemo --file Dockerfile .
+
+cd ../../../../ib-customers-service/
+git pull https://github.com/kkorada/ib-customers-service.git
+mvn -Pprod clean verify -DskipTests=true
+rm -f ./src/main/docker/app.jar
+cp target/*.jar ./src/main/docker/app.jar
+cd ./src/main/docker/
+az acr build --image customerservice --registry cgibdemo --file Dockerfile .
+
+cd ../../../../ib-accounts-service/
+git pull https://github.com/kkorada/ib-accounts-service.git
+mvn -Pprod clean verify -DskipTests=true
+rm -f ./src/main/docker/app.jar
+cp target/*.jar ./src/main/docker/app.jar
+cd ./src/main/docker/
+az acr build --image accountservice --registry cgibdemo --file Dockerfile .
+
+cd ../../../../ib-transactions-service/
+git pull https://github.com/kkorada/ib-transactions-service.git
+mvn -Pprod clean verify -DskipTests=true
+rm -f ./src/main/docker/app.jar
+cp target/*.jar ./src/main/docker/app.jar
+cd ./src/main/docker/
+az acr build --image transactionservice --registry cgibdemo --file Dockerfile .
+cd ../../../../
