@@ -38,6 +38,11 @@ spec:
             configMapKeyRef:
               key: DB_PASSWORD
               name: mysql-config
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: DB_ROOT_PASSWORD
+              name: mysql-config        
         image: mysql:8.0.18
         imagePullPolicy: IfNotPresent
         name: mysql
